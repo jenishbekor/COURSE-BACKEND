@@ -45,6 +45,7 @@ Auth: `Bearer <token>` with `Admin` role
 | --- | --- | --- |
 | `GET` | `/api/admin/departments` | List all departments |
 | `POST` | `/api/admin/departments` | Create department |
+| `PATCH` | `/api/admin/departments/:id` | Update department |
 | `POST` | `/api/admin/departments/:departmentId/managers` | Assign manager to department |
 | `GET` | `/api/admin/academic-years` | List academic years |
 | `POST` | `/api/admin/academic-years` | Create academic year |

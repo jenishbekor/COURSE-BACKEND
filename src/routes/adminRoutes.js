@@ -5,6 +5,7 @@ const router = express.Router();
 
 router.get("/departments", adminController.listDepartments);
 router.post("/departments", adminController.createDepartment);
+router.patch("/departments/:id", adminController.updateDepartment);
 router.post("/departments/:departmentId/managers", adminController.assignManager);
 router.get("/academic-years", adminController.listAcademicYears);
 router.post("/academic-years", adminController.createAcademicYear);

@@ -10,6 +10,15 @@ const pick = require("../utils/pick");
 
 const createDepartment = (payload) => departmentRepository.create(payload);
 const listDepartments = () => departmentRepository.findAll();
+const updateDepartment = async (id, payload) => {
+  const department = await departmentRepository.findById(id);
+  if (!department) {
+    throw new ApiError(404, "Department not found");
+  }
+
+  const updates = pick(payload, ["name", "description"]);
+  return departmentRepository.updateById(id, updates);
+};
 
 const createAcademicYear = (payload) => academicRepository.createYear(payload);
 const createSemester = (payload) => academicRepository.createSemester(payload);
@@ -75,6 +84,7 @@ const listStudents = () => studentRepository.findAll();
 module.exports = {
   createDepartment,
   listDepartments,
+  updateDepartment,
   createAcademicYear,
   createSemester,
   listAcademicYears,

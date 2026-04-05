@@ -73,6 +73,27 @@ paths:
                 description: { type: string, example: Department of Computer Science }
       responses:
         "201": { description: Department created }
+  /api/admin/departments/{id}:
+    patch:
+      tags: [Admin]
+      security: [{ bearerAuth: [] }]
+      summary: Update department
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: integer }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name: { type: string, example: Computer Science }
+                description: { type: string, example: Updated department description }
+      responses:
+        "200": { description: Department updated }
   /api/admin/departments/{departmentId}/managers:
     post:
       tags: [Admin]

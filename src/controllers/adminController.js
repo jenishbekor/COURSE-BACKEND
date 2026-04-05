@@ -8,6 +8,9 @@ const createDepartment = asyncHandler(async (req, res) => {
 const listDepartments = asyncHandler(async (_req, res) => {
   res.json({ success: true, data: await adminService.listDepartments() });
 });
+const updateDepartment = asyncHandler(async (req, res) => {
+  res.json({ success: true, data: await adminService.updateDepartment(req.params.id, req.body) });
+});
 const createAcademicYear = asyncHandler(async (req, res) => {
   res.status(201).json({ success: true, data: await adminService.createAcademicYear(req.body) });
 });
@@ -46,6 +49,7 @@ const listStudents = asyncHandler(async (_req, res) => {
 module.exports = {
   createDepartment,
   listDepartments,
+  updateDepartment,
   createAcademicYear,
   createSemester,
   listAcademicYears,
