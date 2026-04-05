@@ -7,7 +7,7 @@ services:
       - "4000:4000"
     environment:
       PORT: 4000
-      JWT_SECRET: change-me
+      JWT_SECRET: secret-code-for-jwt-token-something-3873872dsdas
       DB_STORAGE: /app/data/students-course-management.sqlite
     volumes:
       - ./data:/app/data
