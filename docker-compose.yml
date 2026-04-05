@@ -1,0 +1,13 @@
+version: "3.9"
+
+services:
+  backend:
+    build: .
+    ports:
+      - "4000:4000"
+    environment:
+      PORT: 4000
+      JWT_SECRET: change-me
+      DB_STORAGE: /app/data/students-course-management.sqlite
+    volumes:
+      - ./data:/app/data

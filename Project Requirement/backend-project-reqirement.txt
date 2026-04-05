@@ -1,0 +1,224 @@
+Backend Project Requirement:
+
+"Students Course Management System" Долбоорунун Техникалык Тапшырмасы (ТЗ)
+
+1. Долбоордун жалпы мүнөздөмөсү
+
+Максаты: "Students Course Management System" – бул жогорку окуу жайларындагы окуу процессин санариптештирүү жана автоматташтыруу үчүн иштелип чыккан архитектуралык чечим. Системанын негизги максаты — кафедралык түзүмдү башкаруу, окуу пландарын (Curriculums) системалаштыруу, курстарды семестрлерге бөлүштүрүү, студенттерди каттоо жана баалоо процесстерин бирдиктүү маалыматтык чөйрөгө интеграциялоо.
+
+Технологиялык стек:
+
+* Backend: Express.js – жогорку өндүрүмдүүлүктөгү RESTful API түзүү үчүн.
+* Database: SQLite – реляциялык маалыматтарды жеңил жана натыйжалуу сактоо үчүн.
+* Infrastructure: Docker жана Docker Compose – тиркемени контейнерлештирүү жана чөйрөнүн изоляциясын камсыз кылуу үчүн.
+
+
+--------------------------------------------------------------------------------
+
+
+2. Маалымат базасынын архитектурасы
+
+Система 13 өз ара байланышкан таблицадан турган реляциялык структураны колдонот. Ар бир таблица маалыматтардын бүтүндүгүн камсыз кылуучу катуу чектөөлөр (constraints) менен аныкталган.
+
+2.1. Таблицалардын деталдаштырылышы
+
+1. Roles (Ролдор)
+
+Field Name	Type	Constraints	Description
+id	INTEGER	PRIMARY KEY, AUTOINCREMENT	Ролдун уникалдуу IDси
+role_name	VARCHAR(50)	NOT NULL, UNIQUE	Ролдун аталышы (Admin, Manager, Teacher, Student)
+
+2. Users (Колдонуучулар)
+
+Field Name	Type	Constraints	Description
+id	INTEGER	PRIMARY KEY, AUTOINCREMENT	Уникалдуу идентификатор
+first_name	VARCHAR(100)	NOT NULL	Колдонуучунун аты
+last_name	VARCHAR(100)	NOT NULL	Колдонуучунун фамилиясы
+email	VARCHAR(150)	NOT NULL, UNIQUE	Кирүү үчүн логин
+password	TEXT	NOT NULL	Хэштелген купуя сөз
+role_id	INTEGER	FOREIGN KEY (Roles.id)	Колдонуучунун ролу
+
+3. Departments (Кафедралар)
+
+Field Name	Type	Constraints	Description
+id	INTEGER	PRIMARY KEY, AUTOINCREMENT	Кафедранын IDси
+name	VARCHAR(255)	NOT NULL, UNIQUE	Кафедранын аталышы
+description	TEXT	NULL	Кыскача маалымат
+
+4. Dept_Managers (Бөлүмдүн менеджерлери)
+
+Field Name	Type	Constraints	Description
+department_id	INTEGER	FOREIGN KEY (Departments.id)	Кафедрага шилтеме
+manager_id	INTEGER	FOREIGN KEY (Users.id)	Менеджерге шилтеме
+
+5. Academic_Years (Окуу жылдары)
+
+Field Name	Type	Constraints	Description
+id	INTEGER	PRIMARY KEY, AUTOINCREMENT	Окуу жылынын IDси
+year_range	VARCHAR(20)	NOT NULL, UNIQUE	Мисалы: "2025-2026"
+
+6. Semesters (Семестрлер)
+
+Field Name	Type	Constraints	Description
+id	INTEGER	PRIMARY KEY, AUTOINCREMENT	Семестрдин IDси
+academic_year_id	INTEGER	FOREIGN KEY (Academic_Years.id)	Тиешелүү окуу жылы
+semester_name	VARCHAR(100)	NOT NULL	Мисалы: "Fall 2025"
+is_active	BOOLEAN	DEFAULT FALSE	Семестрдин статусу
+reg_start_date	DATE	NOT NULL	Каттоонун башталышы
+reg_end_date	DATE	NOT NULL	Каттоонун аякташы
+start_date	DATE	NOT NULL	Окуунун башталышы
+end_date	DATE	NOT NULL	Окуунун аякташы
+
+7. Courses (Жалпы курстар)
+
+Field Name	Type	Constraints	Description
+id	INTEGER	PRIMARY KEY, AUTOINCREMENT	Курстун IDси
+course_code	VARCHAR(20)	NOT NULL, UNIQUE	Курстун уникалдуу коду (мис: CS101)
+course_name	VARCHAR(255)	NOT NULL	Курстун аталышы
+credits	INTEGER	NOT NULL	Кредиттик баасы
+hours	INTEGER	NOT NULL	Жалпы сааты
+cycle	VARCHAR(100)	NOT NULL	Курстун цикли
+type	VARCHAR(50)	CHECK (type IN ('basic', 'elective', 'variational'))	Курстун тиби
+department_id	INTEGER	FOREIGN KEY (Departments.id)	Таандык кафедрасы
+
+8. Curriculums (Окуу пландары)
+
+Field Name	Type	Constraints	Description
+id	INTEGER	PRIMARY KEY, AUTOINCREMENT	Окуу планынын IDси
+name	VARCHAR(255)	NOT NULL	Окуу планынын аталышы
+department_id	INTEGER	FOREIGN KEY (Departments.id)	Кафедрага байлануусу
+academic_year_id	INTEGER	FOREIGN KEY (Academic_Years.id)	Окуу жылына байлануусу
+
+9. Curriculum_Courses (Окуу планындагы курстар)
+
+Field Name	Type	Constraints	Description
+curriculum_id	INTEGER	FOREIGN KEY (Curriculums.id)	Окуу планына шилтеме
+course_id	INTEGER	FOREIGN KEY (Courses.id)	Курска шилтеме
+suggested_semester	INTEGER	NOT NULL	Сунушталган семестр номери
+
+10. Semester_Courses (Семестрде ачылган курстар)
+
+Field Name	Type	Constraints	Description
+id	INTEGER	PRIMARY KEY, AUTOINCREMENT	Семестрдик курстун IDси
+semester_id	INTEGER	FOREIGN KEY (Semesters.id)	Семестрге шилтеме
+course_id	INTEGER	FOREIGN KEY (Courses.id)	Курска шилтеме
+teacher_id	INTEGER	FOREIGN KEY (Users.id)	Мугалимге шилтеме
+is_active	BOOLEAN	DEFAULT TRUE	Курстун активдүүлүгү
+syllabus	TEXT	NULL	Окуу программасы
+
+11. Groups (Группалар)
+
+Field Name	Type	Constraints	Description
+id	INTEGER	PRIMARY KEY, AUTOINCREMENT	Группанын IDси
+group_name	VARCHAR(100)	NOT NULL, UNIQUE	Группанын аталышы
+department_id	INTEGER	FOREIGN KEY (Departments.id)	Кафедрага байлануусу
+curriculum_id	INTEGER	FOREIGN KEY (Curriculums.id)	Окуу планына байлануусу
+
+12. Students (Студенттик маалыматтар)
+
+Field Name	Type	Constraints	Description
+user_id	INTEGER	PRIMARY KEY, FOREIGN KEY (Users.id)	Колдонуучунун IDси
+group_id	INTEGER	FOREIGN KEY (Groups.id)	Группага шилтеме
+student_id_number	VARCHAR(50)	NOT NULL, UNIQUE	Студенттин ID карта номери
+
+13. Enrollments (Катталуу жана Баалар)
+
+Field Name	Type	Constraints	Description
+student_id	INTEGER	FOREIGN KEY (Students.user_id)	Студентке шилтеме
+semester_course_id	INTEGER	FOREIGN KEY (Semester_Courses.id)	Семестрдик курска шилтеме
+course_code	VARCHAR(20)	NOT NULL	Катталган курстун коду
+grade	DECIMAL(5,2)	DEFAULT 0	Коюлган баа
+
+2.2. Логикалык байланыштар (Cardinality)
+
+* Users жана Roles (N:1): Көптөгөн колдонуучулар бир ролго таандык болушу мүмкүн.
+* Departments жана Dept_Managers (1:N): Бир кафедрада бир нече менеджер административдик иштерди жүргүзө алат.
+* Academic_Years жана Semesters (1:N): Бир окуу жылы ичинде бир нече семестр (Fall, Spring) болот.
+* Curriculums жана Courses (M:N): Бир окуу планында көптөгөн курстар бар жана бир курс бир нече окуу планына кириши мүмкүн (Curriculum_Courses аркылуу).
+* Semester_Courses (1:N): Бир эле курс бир семестрде бир нече мугалимге өз-өзүнчө инстанция катары ачылышы мүмкүн.
+
+
+--------------------------------------------------------------------------------
+
+
+3. Ролдор жана функционалдык мүмкүнчүлүктөр
+
+3.1. Администратор (System Administrator)
+
+* Түзүмдүк башкаруу: Кафедраларды түзүү, алардын мета-маалыматтарын редакциялоо.
+* Персоналды дайындоо: Ар бир кафедрага жооптуу менеджерлерди бекитүү.
+* Убакыт шкаласы: Академиялык жылдарды жана семестрлердин иштөө мөөнөттөрүн киргизүү.
+* Колдонуучулар: Бардык ролдордогу колдонуучуларды системага каттоо жана маалыматтарын актуалдаштыруу.
+* Группалар: Студенттик топторду түзүү жана аларды тиешелүү окуу пландарына (Curriculums) интеграциялоо.
+
+3.2. Менеджер (Academic Manager)
+
+* Пландаштыруу: Кафедра үчүн окуу пландарын түзүү жана курстарды семестрлерге (suggested_semester) бөлүштүрүү.
+* Активдештирүү: Семестр башталганда курстарды активдештирүү жана мугалимдерди бекитүү. Белгилей кетчү жагдай: Бир эле курсту бир нече мугалимге бөлүп берүү мүмкүнчүлүгү каралган.
+* Регламент: Студенттер үчүн курстарга катталуунун так мөөнөттөрүн (reg_start_date, reg_end_date) контролдоо.
+
+3.3. Мугалим (Instructor)
+
+* Контентти башкаруу: Өзүнө бекитилген курстар үчүн окуу программасын (syllabus) жана лекциялык темаларды санариптештирүү.
+* Мониторинг: Курска катталган студенттердин тизмесин реалдуу убакыт режиминде көрүү.
+* Верификация: Семестр аягында студенттердин жетишкендиктерин баалоо (grade коюу).
+
+3.4. Студент (Student)
+
+* Курстарга жазылуу: Окуу планы боюнча сунушталган курстарга же башка активдүү курстарга атайын course_code аркылуу катталуу.
+* Чектөө: Катталуу процесси менеджер тарабынан белгиленген мөөнөттөрдө гана жеткиликтүү болот.
+* Академиялык тарых: Өзүнүн өздөштүргөн курстарын жана алган бааларын көрүү.
+
+
+--------------------------------------------------------------------------------
+
+
+4. Backend архитектурасы жана структурасы
+
+Системанын архитектурасы Repository-Service үлгүсүнө негизделген. Бул бизнес-логиканы маалымат базасынан жана сырткы суроо-талаптардан изоляциялоону камсыз кылат.
+
+4.1. Маалыматтардын агымы (Data Flow)
+
+Колдонуучунун суроо-талабы төмөнкү катмарлар аркылуу өтөт: Route (Маршрут) -> Middleware (JWT/Role Check) -> Controller (Валидация) -> Service (Бизнес-логика) -> Repository (DB Query) -> Model (Схема).
+
+4.2. Каталогдордун түзүмү (backend/src)
+
+* /config: database.js – SQLite базасы менен байланыш жана Sequelize конфигурациясы.
+* /models: 13 таблицанын схемалары жана алардын ортосундагы реляциялар (Relationships).
+* /repositories: Маалымат базасы менен түз иштөө катмары. CRUD амалдары гана аткарылат (мисалы: userRepository.findById).
+* /services: Системанын борбордук логикасы. Менеджердин семестрди активдештирүүсү же студенттин катталуу эрежелерин текшерүү ушул жерде ишке ашат.
+* /controllers: HTTP суроо-талаптарды (Request) кабыл алуу жана жоопторду (Response) кайтаруу.
+* /routes: API чекиттерин ролдор боюнча авторизациялоо.
+* /middlewares: authMiddleware (JWT верификация) жана roleMiddleware (укуктарды текшерүү).
+
+
+--------------------------------------------------------------------------------
+
+
+5. Инфраструктура жана жайгаштыруу
+
+5.1. Docker Конфигурациясы
+
+Долбоорду контейнерлештирүү үчүн эки негизги файл колдонулат:
+
+* Dockerfile: Backend чөйрөсүн (Node.js runtime) жана көз карандылыктарды куруу нускамасы.
+* docker-compose.yml: Backend серверин жана SQLite базасын бирдиктүү тармакта иштетүү. Бул иштеп чыгуу жана жайгаштыруу этаптарында чөйрөнүн бирдейлигин кепилдейт.
+
+5.2. Маалымат базасы
+
+Система SQLite базасын колдонот. Бул жеңилдик берүү менен бирге, файлдык негиздеги туруктуулукту камсыз кылат. database.js файлы аркылуу базанын инстанциясы түзүлүп, бардык моделдерге жайылтылат.
+
+
+--------------------------------------------------------------------------------
+
+
+6. Корутунду жана иштеп чыгуу этаптары
+
+Системанын иштөө цикли төмөнкүдөй этаптарды камтыйт:
+
+1. Системаны жөндөө: Администратор тарабынан түзүмдүк каркасты жана колдонуучуларды даярдоо.
+2. Пландоо: Менеджерлер тарабынан окуу пландарын түзүү жана курстарды семестрлерге бекитүү.
+3. Окутуу жана Катталуу: Мугалимдердин силлабустарды толтуруусу жана студенттердин белгиленген мөөнөттө курстарга жазылуусу.
+4. Баалоо: Окуу жыйынтыктарын верификациялоо жана баалоо.
+
+Repository-Service архитектуралык үлгүсүн колдонуу коддун кайра колдонулушун (reusability), тестке ийкемдүүлүгүн жана келечекте системаны оңой кеңейтүү мүмкүнчүлүгүн камсыз кылган негизги фактор болуп саналат.

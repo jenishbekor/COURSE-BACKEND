@@ -1,0 +1,467 @@
+openapi: 3.0.3
+info:
+  title: Students Course Management System API
+  version: 1.0.0
+  description: REST API for the backend project requirement.
+servers:
+  - url: http://localhost:4000
+tags:
+  - name: Health
+  - name: Auth
+  - name: Admin
+  - name: Manager
+  - name: Teacher
+  - name: Student
+paths:
+  /health:
+    get:
+      tags: [Health]
+      summary: Health check
+      responses:
+        "200":
+          description: Server status
+  /api/auth/login:
+    post:
+      tags: [Auth]
+      summary: Login
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, password]
+              properties:
+                email: { type: string, example: admin@scms.local }
+                password: { type: string, example: Admin123! }
+      responses:
+        "200":
+          description: JWT token and user payload
+  /api/auth/register-student:
+    post:
+      tags: [Auth]
+      summary: Register student account
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RegisterStudentRequest"
+      responses:
+        "201":
+          description: Student account created
+  /api/admin/departments:
+    get:
+      tags: [Admin]
+      security: [{ bearerAuth: [] }]
+      summary: List departments
+      responses:
+        "200": { description: Department list }
+    post:
+      tags: [Admin]
+      security: [{ bearerAuth: [] }]
+      summary: Create department
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name]
+              properties:
+                name: { type: string, example: Computer Science }
+                description: { type: string, example: Department of Computer Science }
+      responses:
+        "201": { description: Department created }
+  /api/admin/departments/{departmentId}/managers:
+    post:
+      tags: [Admin]
+      security: [{ bearerAuth: [] }]
+      summary: Assign manager to department
+      parameters:
+        - in: path
+          name: departmentId
+          required: true
+          schema: { type: integer }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [manager_id]
+              properties:
+                manager_id: { type: integer, example: 2 }
+      responses:
+        "200": { description: Manager assigned }
+  /api/admin/academic-years:
+    get:
+      tags: [Admin]
+      security: [{ bearerAuth: [] }]
+      summary: List academic years
+      responses:
+        "200": { description: Academic year list }
+    post:
+      tags: [Admin]
+      security: [{ bearerAuth: [] }]
+      summary: Create academic year
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [year_range]
+              properties:
+                year_range: { type: string, example: 2025-2026 }
+      responses:
+        "201": { description: Academic year created }
+  /api/admin/semesters:
+    get:
+      tags: [Admin]
+      security: [{ bearerAuth: [] }]
+      summary: List semesters
+      responses:
+        "200": { description: Semester list }
+    post:
+      tags: [Admin]
+      security: [{ bearerAuth: [] }]
+      summary: Create semester
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SemesterRequest"
+      responses:
+        "201": { description: Semester created }
+  /api/admin/users:
+    get:
+      tags: [Admin]
+      security: [{ bearerAuth: [] }]
+      summary: List users
+      responses:
+        "200": { description: User list }
+    post:
+      tags: [Admin]
+      security: [{ bearerAuth: [] }]
+      summary: Create user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateUserRequest"
+      responses:
+        "201": { description: User created }
+  /api/admin/users/{id}:
+    patch:
+      tags: [Admin]
+      security: [{ bearerAuth: [] }]
+      summary: Update user
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: integer }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateUserRequest"
+      responses:
+        "200": { description: User updated }
+  /api/admin/groups:
+    get:
+      tags: [Admin]
+      security: [{ bearerAuth: [] }]
+      summary: List groups
+      responses:
+        "200": { description: Group list }
+    post:
+      tags: [Admin]
+      security: [{ bearerAuth: [] }]
+      summary: Create group
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [group_name, department_id, curriculum_id]
+              properties:
+                group_name: { type: string, example: SE-25-1 }
+                department_id: { type: integer, example: 1 }
+                curriculum_id: { type: integer, example: 1 }
+      responses:
+        "201": { description: Group created }
+  /api/admin/students:
+    get:
+      tags: [Admin]
+      security: [{ bearerAuth: [] }]
+      summary: List students
+      responses:
+        "200": { description: Student list }
+  /api/manager/courses:
+    get:
+      tags: [Manager]
+      security: [{ bearerAuth: [] }]
+      summary: List courses
+      responses:
+        "200": { description: Course list }
+    post:
+      tags: [Manager]
+      security: [{ bearerAuth: [] }]
+      summary: Create course
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateCourseRequest"
+      responses:
+        "201": { description: Course created }
+  /api/manager/curriculums:
+    get:
+      tags: [Manager]
+      security: [{ bearerAuth: [] }]
+      summary: List curriculums
+      responses:
+        "200": { description: Curriculum list }
+    post:
+      tags: [Manager]
+      security: [{ bearerAuth: [] }]
+      summary: Create curriculum
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateCurriculumRequest"
+      responses:
+        "201": { description: Curriculum created }
+  /api/manager/curriculum-courses:
+    post:
+      tags: [Manager]
+      security: [{ bearerAuth: [] }]
+      summary: Add course to curriculum
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [curriculum_id, course_id, suggested_semester]
+              properties:
+                curriculum_id: { type: integer, example: 1 }
+                course_id: { type: integer, example: 1 }
+                suggested_semester: { type: integer, example: 1 }
+      responses:
+        "201": { description: Course linked to curriculum }
+  /api/manager/semester-courses:
+    get:
+      tags: [Manager]
+      security: [{ bearerAuth: [] }]
+      summary: List semester courses
+      responses:
+        "200": { description: Semester course list }
+    post:
+      tags: [Manager]
+      security: [{ bearerAuth: [] }]
+      summary: Activate semester course
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateSemesterCourseRequest"
+      responses:
+        "201": { description: Semester course created }
+  /api/manager/semesters/{semesterId}:
+    patch:
+      tags: [Manager]
+      security: [{ bearerAuth: [] }]
+      summary: Update semester fields
+      parameters:
+        - in: path
+          name: semesterId
+          required: true
+          schema: { type: integer }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                is_active: { type: boolean, example: true }
+                reg_start_date: { type: string, format: date }
+                reg_end_date: { type: string, format: date }
+                start_date: { type: string, format: date }
+                end_date: { type: string, format: date }
+      responses:
+        "200": { description: Semester updated }
+  /api/teacher/courses:
+    get:
+      tags: [Teacher]
+      security: [{ bearerAuth: [] }]
+      summary: List assigned courses
+      responses:
+        "200": { description: Teacher course list }
+  /api/teacher/semester-courses/{semesterCourseId}/syllabus:
+    patch:
+      tags: [Teacher]
+      security: [{ bearerAuth: [] }]
+      summary: Update syllabus
+      parameters:
+        - in: path
+          name: semesterCourseId
+          required: true
+          schema: { type: integer }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [syllabus]
+              properties:
+                syllabus: { type: string, example: Variables, loops, functions }
+      responses:
+        "200": { description: Syllabus updated }
+  /api/teacher/semester-courses/{semesterCourseId}/grade:
+    patch:
+      tags: [Teacher]
+      security: [{ bearerAuth: [] }]
+      summary: Grade student
+      parameters:
+        - in: path
+          name: semesterCourseId
+          required: true
+          schema: { type: integer }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [student_id, grade]
+              properties:
+                student_id: { type: integer, example: 4 }
+                grade: { type: number, format: float, example: 89.5 }
+      responses:
+        "200": { description: Grade updated }
+  /api/student/me:
+    get:
+      tags: [Student]
+      security: [{ bearerAuth: [] }]
+      summary: Get student profile
+      responses:
+        "200": { description: Student profile }
+  /api/student/available-courses:
+    get:
+      tags: [Student]
+      security: [{ bearerAuth: [] }]
+      summary: List available courses
+      responses:
+        "200": { description: Available course list }
+  /api/student/enrollments:
+    post:
+      tags: [Student]
+      security: [{ bearerAuth: [] }]
+      summary: Enroll by course code
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [course_code]
+              properties:
+                course_code: { type: string, example: CS101 }
+      responses:
+        "201": { description: Enrollment created }
+  /api/student/history:
+    get:
+      tags: [Student]
+      security: [{ bearerAuth: [] }]
+      summary: Get academic history
+      responses:
+        "200": { description: Academic history }
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    RegisterStudentRequest:
+      type: object
+      required: [first_name, last_name, email, password, group_id, student_id_number]
+      properties:
+        first_name: { type: string, example: Demo }
+        last_name: { type: string, example: Student }
+        email: { type: string, example: student@scms.local }
+        password: { type: string, example: Student123! }
+        group_id: { type: integer, example: 1 }
+        student_id_number: { type: string, example: STU-0001 }
+    SemesterRequest:
+      type: object
+      required:
+        [academic_year_id, semester_name, reg_start_date, reg_end_date, start_date, end_date]
+      properties:
+        academic_year_id: { type: integer, example: 1 }
+        semester_name: { type: string, example: Fall 2025 }
+        is_active: { type: boolean, example: true }
+        reg_start_date: { type: string, format: date }
+        reg_end_date: { type: string, format: date }
+        start_date: { type: string, format: date }
+        end_date: { type: string, format: date }
+    CreateUserRequest:
+      type: object
+      required: [first_name, last_name, email, password, role_name]
+      properties:
+        first_name: { type: string, example: Course }
+        last_name: { type: string, example: Teacher }
+        email: { type: string, example: teacher2@scms.local }
+        password: { type: string, example: Teacher123! }
+        role_name:
+          type: string
+          enum: [Admin, Manager, Teacher, Student]
+    UpdateUserRequest:
+      type: object
+      properties:
+        first_name: { type: string }
+        last_name: { type: string }
+        email: { type: string }
+        password: { type: string }
+    CreateCourseRequest:
+      type: object
+      required: [course_code, course_name, credits, hours, cycle, type, department_id]
+      properties:
+        course_code: { type: string, example: CS101 }
+        course_name: { type: string, example: Introduction to Programming }
+        credits: { type: integer, example: 5 }
+        hours: { type: integer, example: 75 }
+        cycle: { type: string, example: Professional }
+        type:
+          type: string
+          enum: [basic, elective, variational]
+        department_id: { type: integer, example: 1 }
+    CreateCurriculumRequest:
+      type: object
+      required: [name, department_id, academic_year_id]
+      properties:
+        name: { type: string, example: Software Engineering 2025 }
+        department_id: { type: integer, example: 1 }
+        academic_year_id: { type: integer, example: 1 }
+    CreateSemesterCourseRequest:
+      type: object
+      required: [semester_id, course_id, teacher_id]
+      properties:
+        semester_id: { type: integer, example: 1 }
+        course_id: { type: integer, example: 1 }
+        teacher_id: { type: integer, example: 3 }
+        is_active: { type: boolean, example: true }
+        syllabus: { type: string, example: Programming basics }

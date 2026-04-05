@@ -1,0 +1,246 @@
+{
+  "info": {
+    "name": "Students Course Management System API",
+    "_postman_id": "78c1f7a7-d762-4c16-9f4f-2f0f336d8fbb",
+    "description": "Postman collection for the Students Course Management System backend.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:4000" },
+    { "key": "token", "value": "" }
+  ],
+  "item": [
+    {
+      "name": "Health",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/health"
+      }
+    },
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Login Admin",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"admin@scms.local\",\n  \"password\": \"Admin123!\"\n}"
+            },
+            "url": "{{baseUrl}}/api/auth/login"
+          }
+        },
+        {
+          "name": "Register Student",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"first_name\": \"New\",\n  \"last_name\": \"Student\",\n  \"email\": \"newstudent@scms.local\",\n  \"password\": \"Student123!\",\n  \"group_id\": 1,\n  \"student_id_number\": \"STU-1002\"\n}"
+            },
+            "url": "{{baseUrl}}/api/auth/register-student"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Admin",
+      "item": [
+        {
+          "name": "List Departments",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{baseUrl}}/api/admin/departments"
+          }
+        },
+        {
+          "name": "Create Department",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Mathematics\",\n  \"description\": \"Department of Mathematics\"\n}"
+            },
+            "url": "{{baseUrl}}/api/admin/departments"
+          }
+        },
+        {
+          "name": "Create Academic Year",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"year_range\": \"2026-2027\"\n}"
+            },
+            "url": "{{baseUrl}}/api/admin/academic-years"
+          }
+        },
+        {
+          "name": "Create User",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"first_name\": \"Second\",\n  \"last_name\": \"Teacher\",\n  \"email\": \"teacher2@scms.local\",\n  \"password\": \"Teacher123!\",\n  \"role_name\": \"Teacher\"\n}"
+            },
+            "url": "{{baseUrl}}/api/admin/users"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Manager",
+      "item": [
+        {
+          "name": "Create Course",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"course_code\": \"CS102\",\n  \"course_name\": \"Data Structures\",\n  \"credits\": 5,\n  \"hours\": 75,\n  \"cycle\": \"Professional\",\n  \"type\": \"basic\",\n  \"department_id\": 1\n}"
+            },
+            "url": "{{baseUrl}}/api/manager/courses"
+          }
+        },
+        {
+          "name": "Create Curriculum",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Software Engineering Advanced\",\n  \"department_id\": 1,\n  \"academic_year_id\": 1\n}"
+            },
+            "url": "{{baseUrl}}/api/manager/curriculums"
+          }
+        },
+        {
+          "name": "Activate Semester Course",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"semester_id\": 1,\n  \"course_id\": 1,\n  \"teacher_id\": 3,\n  \"is_active\": true,\n  \"syllabus\": \"Programming basics\"\n}"
+            },
+            "url": "{{baseUrl}}/api/manager/semester-courses"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Teacher",
+      "item": [
+        {
+          "name": "List My Courses",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{baseUrl}}/api/teacher/courses"
+          }
+        },
+        {
+          "name": "Update Syllabus",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"syllabus\": \"Updated syllabus content\"\n}"
+            },
+            "url": "{{baseUrl}}/api/teacher/semester-courses/1/syllabus"
+          }
+        },
+        {
+          "name": "Grade Student",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"student_id\": 4,\n  \"grade\": 95.5\n}"
+            },
+            "url": "{{baseUrl}}/api/teacher/semester-courses/1/grade"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Student",
+      "item": [
+        {
+          "name": "Get Profile",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{baseUrl}}/api/student/me"
+          }
+        },
+        {
+          "name": "Available Courses",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{baseUrl}}/api/student/available-courses"
+          }
+        },
+        {
+          "name": "Enroll By Course Code",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"course_code\": \"CS101\"\n}"
+            },
+            "url": "{{baseUrl}}/api/student/enrollments"
+          }
+        },
+        {
+          "name": "Academic History",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{baseUrl}}/api/student/history"
+          }
+        }
+      ]
+    }
+  ]
+}
